@@ -1,0 +1,49 @@
+---
+- name: Read CSV and send test email
+  hosts: test_servers
+  gather_facts: no
+
+  tasks:
+    - name: Read CSV file
+      read_csv:
+        path: /var/lib/awx/projects/airtel/SL_Infra_IP.csv
+        delimiter: ","
+      register: csv_data
+      delegate_to: localhost
+
+    - name: Copy Bash script to remote host
+      copy:
+        src: /var/lib/awx/projects/airtel/script_for_seven_days_to_expire.sh
+        dest: /var/tmp/script_b.sh
+        mode: "u=rwx,g=rx,o=rx"
+
+    - name: Run Bash script on remote host
+      shell: /var/tmp/script_b.sh
+      register: script_result
+
+    - name: Search for email
+      set_fact:
+        email: "{{ item.email }}"
+      loop: "{{ csv_data.list }}"
+      when: item.ip_address == ansible_host
+
+    - name: Send test email
+      mail:
+        host: 10.56.131.8
+        from: Linux_password_expired_user_lists
+        subject: 7 Days Pending Password Expire User Lists - Pre-production
+        to: "{{ email }}"
+        cc: SSOLK@airtel.com, Lanka.ITHelpdesk@airtel.com
+        subtype: html
+        body: |
+          <p style="color:red;font-weight:bold;font-family:verdana;">Seven days remaining to expire password. Please take action to  change the passwords of below users on the following hosts:</p>
+          <br>
+          <p style="font-family:verdana;"> Password expiration users of (  {{ ansible_host }} ) : </p> <p style="font-family:courier;"> {{ script_result.stdout }}</p>
+      when: script_result.stdout_lines|length > 0
+      delegate_to: localhost
+
+    - name: Delete Bash script
+      file:
+        path: /var/tmp/script_b.sh
+        state: absent
+##Created_by:Dinuka_Nanayakkara
