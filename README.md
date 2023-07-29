@@ -1,4 +1,4 @@
-# Password expiry pending sevendays
+# Password expiry pending users in sevendays
 Get password expiry pending(7 days remain) user in list of Red Hat servers as a email.
 
 Note : Make the changes to csv file (excel.csv) to add server ip address and relevant server owner email.
