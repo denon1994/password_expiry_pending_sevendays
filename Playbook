@@ -6,14 +6,14 @@
   tasks:
     - name: Read CSV file
       read_csv:
-        path: /var/lib/awx/projects/airtel/SL_Infra_IP.csv
+        path: /path/to/project/excel.csv
         delimiter: ","
       register: csv_data
       delegate_to: localhost
 
     - name: Copy Bash script to remote host
       copy:
-        src: /var/lib/awx/projects/airtel/script_for_seven_days_to_expire.sh
+        src: /path/to/project/script_for_seven_days_to_expire.sh
         dest: /var/tmp/script_b.sh
         mode: "u=rwx,g=rx,o=rx"
 
@@ -33,7 +33,7 @@
         from: Linux_password_expired_user_lists
         subject: 7 Days Pending Password Expire User Lists - Pre-production
         to: "{{ email }}"
-        cc: SSOLK@airtel.com, Lanka.ITHelpdesk@airtel.com
+        cc: nanayakkaradinuka@gmail.com
         subtype: html
         body: |
           <p style="color:red;font-weight:bold;font-family:verdana;">Seven days remaining to expire password. Please take action to  change the passwords of below users on the following hosts:</p>
